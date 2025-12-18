@@ -38,9 +38,9 @@ class GPTReasoningExpert(LLMExpert):
 
         message = response.choices[0].message.content
 
-        return {
-            "content": message,
-            "provider": "openai",
-            "model": self.model,
-            "usage": response.usage.model_dump() if response.usage else None,
-        }
+        return LLMResponse(
+            content=message,
+            provider="openai",
+            model=self.model,
+            usage=response.usage.model_dump() if response.usage else None,
+        )

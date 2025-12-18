@@ -29,9 +29,9 @@ class GeminiSummaryExpert(LLMExpert):
             },
         )
 
-        return {
-            "content": response.text,
-            "provider": "google",
-            "model": self.model,
-            "usage": None,  # usage not consistently exposed yet
-        }
+        return LLMResponse(
+            content=response.text,
+            provider="google",
+            model=self.model,
+            usage=None,  # usage not consistently exposed yet
+        )
