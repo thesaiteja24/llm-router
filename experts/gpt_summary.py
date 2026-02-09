@@ -2,15 +2,17 @@ from openai import OpenAI
 from experts.base import LLMExpert, LLMResponse
 from config import OPENAI_API_KEY
 
+
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 
-class GPTReasoningExpert(LLMExpert):
+class GPTSummaryExpert(LLMExpert):
     """
-    GPT-based expert optimized for reasoning and explanations.
+    GPT-based expert optimized for summarization and extraction.
+    Uses GPT-4o-mini for cost efficiency on summarization tasks.
     """
 
-    def __init__(self, model: str = "o3-mini"):
+    def __init__(self, model: str = "gpt-4o-mini"):
         super().__init__(model)
 
     def generate(
@@ -18,11 +20,10 @@ class GPTReasoningExpert(LLMExpert):
         prompt: str,
         **kwargs,
     ) -> LLMResponse:
-
         system_prompt = (
-            "You are a precise reasoning assistant. "
-            "Explain step by step when appropriate. "
-            "Be concise and logically structured."
+            "You are a concise summarization expert. "
+            "Extract the key points and present them clearly. "
+            "Be brief but comprehensive. Avoid unnecessary details."
         )
 
         response = client.chat.completions.create(
@@ -31,17 +32,16 @@ class GPTReasoningExpert(LLMExpert):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt},
             ],
-            temperature=kwargs.get("temperature", 0.3),
-            max_tokens=kwargs.get("max_tokens", 1000),
+            temperature=kwargs.get("temperature", 0.2),
+            max_tokens=kwargs.get("max_tokens", 400),
             frequency_penalty=kwargs.get("frequency_penalty", 0.0),
             presence_penalty=kwargs.get("presence_penalty", 0.0),
         )
 
-        message = response.choices[0].message.content
-
         return LLMResponse(
-            content=message,
+            content=response.choices[0].message.content,
             provider="openai",
             model=self.model,
-            usage=response.usage.model_dump() if response.usage else None,
+            input_tokens=response.usage.prompt_tokens if response.usage else None,
+            output_tokens=response.usage.completion_tokens if response.usage else None,
         )

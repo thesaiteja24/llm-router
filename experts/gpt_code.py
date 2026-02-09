@@ -16,8 +16,7 @@ class GPTCodeExpert(LLMExpert):
     def generate(
         self,
         prompt: str,
-        temperature: float = 0.2,
-        max_tokens: int = 1200,
+        **kwargs,
     ) -> LLMResponse:
 
         system_prompt = (
@@ -33,8 +32,10 @@ class GPTCodeExpert(LLMExpert):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt},
             ],
-            temperature=temperature,
-            max_tokens=max_tokens,
+            temperature=kwargs.get("temperature", 0.3),
+            max_tokens=kwargs.get("max_tokens", 1200),
+            frequency_penalty=kwargs.get("frequency_penalty", 0.0),
+            presence_penalty=kwargs.get("presence_penalty", 0.0),
         )
 
         message = response.choices[0].message.content

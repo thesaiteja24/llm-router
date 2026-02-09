@@ -8,12 +8,11 @@ class FallbackExpert(LLMExpert):
     """
 
     def __init__(self):
-        super().__init__(model="gpt-4o-mini")
+        super().__init__(model="gpt-4.1-mini")
         self.expert = GPTCodeExpert(model=self.model)
 
     def generate(self, prompt: str, **kwargs) -> LLMResponse:
         return self.expert.generate(
             prompt,
-            temperature=0.4,
-            max_tokens=800,
+            **kwargs,
         )

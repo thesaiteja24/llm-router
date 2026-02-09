@@ -12,10 +12,15 @@ TaskType = Literal[
 ExpertType = Literal[
     "gpt_code",
     "gpt_reasoning",
-    "gemini_summary",
+    "gpt_summary",
     "fallback",
 ]
 
+ReasoningDepth = Literal[
+    "low",
+    "medium",
+    "high",
+]
 
 class GenerationParameters(BaseModel):
     """
@@ -31,6 +36,22 @@ class GenerationParameters(BaseModel):
         ge=50,
         le=4000,
         description="Maximum tokens for generation"
+    )
+
+    reasoning_depth: ReasoningDepth = Field(
+        description="Depth of reasoning required"
+    )
+
+    frequency_penalty: float = Field(
+        ge=0.0,
+        le=2.0,
+        description="Penalty for frequent tokens"
+    )
+
+    presence_penalty: float = Field(
+        ge=0.0,
+        le=2.0,
+        description="Penalty for introducing new tokens"
     )
 
 

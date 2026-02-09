@@ -1,0 +1,66 @@
+[
+  {
+    "query": "Write a python function to find pallindrome",
+    "decision": {
+      "task_type": "code_generation",
+      "confidence": 0.9,
+      "expert": "gpt_code",
+      "parameters": {
+        "temperature": 0.2,
+        "max_tokens": 1000,
+        "reasoning_depth": "high",
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0
+      }
+    },
+    "response": "To determine if a given string is a palindrome, you can write a Python function that checks if the string reads the same forwards and backwards. Here's a simple and idiomatic implementation:\n\n```python\ndef is_palindrome(s: str) -> bool:\n    # Normalize the string by converting it to lowercase and removing non-alphanumeric characters\n    normalized_str = ''.join(char.lower() for char in s if char.isalnum())\n    \n    # Check if the normalized string is equal to its reverse\n    return normalized_str == normalized_str[::-1]\n\n# Example usage:\nprint(is_palindrome(\"A man, a plan, a canal, Panama\"))  # Output: True\nprint(is_palindrome(\"racecar\"))                         # Output: True\nprint(is_palindrome(\"hello\"))                           # Output: False\n```\n\n### Assumptions:\n1. **Case Insensitivity**: The function treats uppercase and lowercase letters as equivalent by converting the entire string to lowercase.\n2. **Ignoring Non-Alphanumeric Characters**: The function removes spaces, punctuation, and other non-alphanumeric characters to focus solely on the letters and numbers.\n3. **Empty String**: An empty string is considered a palindrome.\n4. **Efficiency**: The function uses slicing to reverse the string, which is an efficient and idiomatic way to check for palindromes in Python."
+  },
+  {
+    "query": "How to prepare biryani",
+    "decision": {
+      "task_type": "general",
+      "confidence": 0.6,
+      "expert": "fallback",
+      "parameters": {
+        "temperature": 0.4,
+        "max_tokens": 500,
+        "reasoning_depth": "low",
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0
+      }
+    },
+    "response": "To prepare biryani, follow this simple recipe. Here, I'll provide a basic chicken biryani recipe as an example.\n\n### Ingredients:\n- 2 cups basmati rice\n- 500 grams chicken, cut into pieces\n- 1 large onion, thinly sliced\n- 2 tomatoes, chopped\n- 1/2 cup yogurt\n- 2-3 green chilies, slit\n- 1 tablespoon ginger-garlic paste\n- 1/4 cup chopped mint leaves\n- 1/4 cup chopped coriander leaves\n- 4-5 whole cloves\n- 4-5 green cardamom pods\n- 1-2 cinnamon sticks\n- 2 bay leaves\n- 1 teaspoon cumin seeds\n- 1 teaspoon garam masala\n- 1/4 teaspoon turmeric powder\n- 1 teaspoon red chili powder (adjust to taste)\n- Salt to taste\n- 4 cups water\n- 3 tablespoons oil or ghee\n- Optional: fried onions for garnish\n\n### Instructions:\n\n1. **Wash and Soak Rice**: Rinse the basmati rice under cold water until the water runs clear. Soak it in water for about 30 minutes, then drain.\n\n2. **Marinate Chicken**: In a bowl, combine chicken pieces with yogurt, ginger-garlic paste, turmeric powder, red chili powder, and salt. Let it marinate for at least 30 minutes.\n\n3. **Fry Onions**: In a large pot, heat oil or ghee over medium heat. Add sliced onions and fry until golden brown. Remove half for garnishing later.\n\n4. **Cook Chicken**: Add the marinated chicken to the pot with the remaining onions. Cook until the chicken is browned and cooked through (about 10-15 minutes). Add chopped tomatoes, green chilies, mint, and coriander. Cook until tomatoes soften.\n\n5. **Add Spices**: Add whole spices (cloves, cardamom, cinnamon, bay leaves, cumin seeds) and garam masala. Stir well.\n\n6. **Cook Rice**: In a separate pot, bring 4 cups of water to a boil. Add the soaked and drained rice along with salt. Cook until the rice is 70% done (it should still have a bite). Drain the rice.\n\n7. **Layer Biryani**: In the pot with the chicken, layer the partially"
+  },
+  {
+    "query": "Give detailed instructions on how to prepare biryani",
+    "decision": {
+      "task_type": "general",
+      "confidence": 0.7,
+      "expert": "fallback",
+      "parameters": {
+        "temperature": 0.4,
+        "max_tokens": 600,
+        "reasoning_depth": "low",
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0
+      }
+    },
+    "response": "Certainly! Here's a detailed recipe for preparing a classic chicken biryani, a flavorful and aromatic rice dish popular in South Asian cuisine.\n\n### Ingredients\n\n#### For the Chicken Marinade:\n- 500 grams of chicken (cut into pieces)\n- 1 cup yogurt\n- 2 medium onions (thinly sliced)\n- 2-3 green chilies (slit)\n- 1 tablespoon ginger-garlic paste\n- 1 teaspoon red chili powder\n- 1 teaspoon turmeric powder\n- 1 teaspoon garam masala\n- Salt to taste\n- 2 tablespoons lemon juice\n- Fresh coriander leaves (chopped)\n- Fresh mint leaves (chopped)\n\n#### For the Rice:\n- 2 cups basmati rice\n- 4 cups water\n- 2-3 green cardamom pods\n- 3-4 cloves\n- 1-2 bay leaves\n- 1 stick of cinnamon\n- Salt to taste\n\n#### For Layering:\n- 1/4 cup fried onions (store-bought or homemade)\n- Additional chopped coriander and mint leaves for garnish\n- 2 tablespoons ghee or oil\n\n### Instructions\n\n#### Step 1: Marinate the Chicken\n1. In a large bowl, combine the chicken pieces with yogurt, sliced onions, green chilies, ginger-garlic paste, red chili powder, turmeric powder, garam masala, salt, lemon juice, chopped coriander, and mint leaves.\n2. Mix well to coat the chicken evenly. Cover and let it marinate for at least 1 hour (or overnight in the refrigerator for better flavor).\n\n#### Step 2: Prepare the Rice\n1. Rinse the basmati rice under cold water until the water runs clear to remove excess starch. Soak the rice in water for 30 minutes, then drain.\n2. In a large pot, bring 4 cups of water to a boil. Add the soaked rice, green cardamom, cloves, bay leaves, cinnamon, and salt.\n3. Cook the rice until it is about 70% done (it should still have a bite). This usually takes about 5-7 minutes. Drain the rice and set it aside.\n\n#### Step 3: Cook the Chicken\n1. In a large, heavy-bottomed pot or Dutch oven, heat ghee or oil over medium heat.\n2. Add the marinated chicken (along with the marinade) to the pot. Cook"
+  },
+  {
+    "query": "ROUTER_SYSTEM_PROMPT = \"\"\" You are a routing and planning model in an AI system.  Your job is to: 1. Classify the user's query into exactly ONE task type. 2. Select the most appropriate expert. 3. Plan ideal generation parameters for that task.  IMPORTANT RULES: - You MUST NOT answer the user's question. - You MUST ONLY output valid JSON. - Do NOT include explanations, comments, markdown, or extra text. - The output MUST match the provided JSON schema exactly.   TASK TYPES (choose ONE) - code_generation - reasoning - summarization - general   EXPERTS (choose ONE) - gpt_code - gpt_reasoning - gemini_summary - fallback   TASK CLASSIFICATION GUIDELINES - Use code_generation if the user asks to write, modify, debug, or implement code. - Use reasoning if the user asks for explanations, logic, analysis, or conceptual understanding. - Use summarization if the user asks to summarize, shorten, extract, or condense content. - Use general if the task is ambiguous or does not clearly fit the above categories.   PARAMETER PLANNING RULES  For code_generation: - temperature: between 0.1 and 0.3 - reasoning_depth: high - max_tokens: between 800 and 2000 - frequency_penalty: 0.0 - presence_penalty: 0.0  For reasoning: - temperature: between 0.2 and 0.4 - reasoning_depth: medium - max_tokens: between 600 and 1200 - frequency_penalty: 0.0 - presence_penalty: 0.0  For summarization: - temperature: between 0.0 and 0.2 - reasoning_depth: low - max_tokens: between 200 and 500 - frequency_penalty: 0.0 - presence_penalty: 0.0  For general: - temperature: between 0.3 and 0.5 - reasoning_depth: low - max_tokens: between 300 and 800 - frequency_penalty: 0.0 - presence_penalty: 0.0  CONFIDENCE SCORING - Set confidence between 0.0 and 1.0. - Use higher confidence when the task type is clear. - Use lower confidence when the query is ambiguous.  OUTPUT FORMAT (STRICT) Return ONLY a JSON object with this structure:  {   \"task_type\": \"<task_type>\",   \"confidence\": <float>,   \"expert\": \"<expert>\",   \"parameters\": {     \"temperature\": <float>,     \"max_tokens\": <int>,     \"reasoning_depth\": \"<low|medium|high>\",     \"frequency_penalty\": <float>,     \"presence_penalty\": <float>   } } \"\"\" explain this",
+    "decision": {
+      "task_type": "reasoning",
+      "confidence": 0.9,
+      "expert": "gpt_reasoning",
+      "parameters": {
+        "temperature": 0.3,
+        "max_tokens": 800,
+        "reasoning_depth": "medium",
+        "frequency_penalty": 0.0,
+        "presence_penalty": 0.0
+      }
+    },
+    "response": "The provided text is a system prompt for an AI model designed to route and plan tasks based on user queries. Here's a breakdown of its components:\n\n1. **Task Classification**: The model must classify the user's query into one of four task types:\n   - **code_generation**: For tasks involving writing, modifying, debugging, or implementing code.\n   - **reasoning**: For tasks requiring explanations, logic, analysis, or conceptual understanding.\n   - **summarization**: For tasks involving summarizing, shortening, extracting, or condensing content.\n   - **general**: For tasks that are ambiguous or do not clearly fit the other categories.\n\n2. **Expert Selection**: Based on the task type, the model selects the most appropriate expert from:\n   - **gpt_code**: For code-related tasks.\n   - **gpt_reasoning**: For reasoning tasks.\n   - **gemini_summary**: For summarization tasks.\n   - **fallback**: For general or ambiguous tasks.\n\n3. **Parameter Planning**: The model plans ideal generation parameters for the task:\n   - **temperature**: Controls randomness in output; varies by task type.\n   - **reasoning_depth**: Indicates the depth of reasoning required; varies by task type.\n   - **max_tokens**: Limits the length of the output; varies by task type.\n   - **frequency_penalty** and **presence_penalty**: Both set to 0.0 for all tasks.\n\n4. **Confidence Scoring**: The model assigns a confidence score (0.0 to 1.0) based on how clear the task type is.\n\n5. **Output Format**: The model must output a JSON object strictly following a specified structure, containing the task type, confidence score, selected expert, and parameters.\n\nThe prompt emphasizes that the model should not answer the user's question directly and must adhere strictly to the JSON output format without additional text or explanations."
+  }
+]
