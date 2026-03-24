@@ -3,7 +3,7 @@
 import time
 from typing import Dict, List, Optional, Tuple
 
-from router.router_llm import RouterLLM
+from router.router_llm import RouterLLM, client
 from router.schema import RouterDecision
 
 from experts.gpt_code import GPTCodeExpert
@@ -18,7 +18,7 @@ from evaluation.metrics import DetailedMetrics, calculate_cost
 # Expert to model mapping for cost calculation
 EXPERT_MODELS = {
     "gpt_code": ("openai", "gpt-4o"),
-    "gpt_reasoning": ("openai", "o4-mini"),
+    "gpt_reasoning": ("openai", "o3-mini"),
     "gpt_summary": ("openai", "gpt-4o-mini"),
     "fallback": ("openai", "gpt-4.1-mini"),
 }
@@ -101,6 +101,7 @@ class RoutingEngine:
         user_query: str,
         expected_task: Optional[str] = None,
         history: Optional[List[Dict]] = None,
+        skip_execution: bool = False,
     ) -> Tuple[LLMResponse, DetailedMetrics]:
         """
         Execute query and return response with detailed metrics.
@@ -156,7 +157,15 @@ class RoutingEngine:
         
         # Time the expert
         expert_start = time.time()
-        if decision and not used_fallback:
+        if skip_execution:
+             # Dry run: return dummy response for valid chart comparisons
+             response = LLMResponse(
+                 content="[Skipped Execution]",
+                 provider=provider,
+                 model=model,
+                 usage={"prompt_tokens": 200, "completion_tokens": 300},
+             )
+        elif decision and not used_fallback:
             parameters = self._clamp_parameters(decision)
             assigned_params = parameters  # Track what parameters were assigned
             response = expert.generate(user_query, **parameters)
@@ -173,7 +182,7 @@ class RoutingEngine:
         expert_output_tokens = getattr(response, 'output_tokens', None) or 300
         
         # Calculate costs
-        router_cost = calculate_cost("gpt-4o-mini", router_input_tokens, router_output_tokens)
+        router_cost = calculate_cost(self.router.model, router_input_tokens, router_output_tokens)
         expert_cost = calculate_cost(model, expert_input_tokens, expert_output_tokens)
         
         # Build metrics
@@ -214,4 +223,97 @@ class RoutingEngine:
         )
         
         return response, metrics
+
+
+    def run_baseline(self, user_query: str, model: str) -> Tuple[LLMResponse, DetailedMetrics]:
+        """
+        Run a direct baseline (no routing) for comparison.
+        """
+        start_time = time.time()
+        
+        try:
+            # Baseline uses a standard system prompt or none? 
+            # Experts use specific system prompts. Baselines are "generic" usually.
+            # But GPT-4o expert uses a system prompt.
+            # For fair comparison, we should probably use a generic "You are a helpful assistant" 
+            # or just the user query.
+            # Let's use a minimal system prompt or just user message.
+            # To be "fair", usually baselines are just "Here is the query".
+            
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": user_query}],
+                temperature=0.7, 
+            )
+            
+            content = response.choices[0].message.content
+            latency = time.time() - start_time
+            
+            input_tokens = response.usage.prompt_tokens
+            output_tokens = response.usage.completion_tokens
+            cost = calculate_cost(model, input_tokens, output_tokens)
+            
+            llm_response = LLMResponse(
+                content=content,
+                provider="openai",
+                model=model,
+                usage={"prompt_tokens": input_tokens, "completion_tokens": output_tokens}
+            )
+            
+            metrics = DetailedMetrics(
+                router_latency=0.0,
+                expert_latency=latency,
+                total_latency=latency,
+                router_input_tokens=0,
+                router_output_tokens=0,
+                expert_input_tokens=input_tokens,
+                expert_output_tokens=output_tokens,
+                router_cost=0.0,
+                expert_cost=cost,
+                total_cost=cost,
+                # Baseline has no routing info
+                predicted_task="baseline",
+                expected_task=None,
+                is_correct=None,
+                confidence=1.0,
+                selected_expert="baseline",
+                used_fallback=False,
+                router_model="none",
+                expert_model=model,
+                expert_provider="openai",
+                assigned_parameters={"temperature": 0.7}
+            )
+            
+            return llm_response, metrics
+            
+        except Exception as e:
+            print(f"Baseline error: {e}")
+            latency = time.time() - start_time
+            return LLMResponse(
+                content=f"Error: {e}", 
+                provider="openai", 
+                model=model,
+                usage={"prompt_tokens": 0, "completion_tokens": 0}
+            ), DetailedMetrics(
+                router_latency=0.0,
+                expert_latency=latency,
+                total_latency=latency,
+                router_input_tokens=0,
+                router_output_tokens=0,
+                expert_input_tokens=0,
+                expert_output_tokens=0,
+                router_cost=0.0,
+                expert_cost=0.0,
+                total_cost=0.0,
+                predicted_task="baseline_error",
+                expected_task=None,
+                is_correct=None,
+                confidence=0.0,
+                selected_expert="baseline",
+                used_fallback=True,
+                router_model="none",
+                expert_model=model,
+                expert_provider="openai",
+                assigned_parameters={}
+            )
 

@@ -78,8 +78,9 @@ class RouterLLM:
                 response = client.chat.completions.create(
                     model=self.model,
                     messages=messages,
-                    temperature=0.3,
-                    max_tokens=300,
+                    # temperature is not supported by o3-mini
+                    temperature=0.7,
+                    max_completion_tokens=300,
                 )
 
                 # Track token usage for metrics

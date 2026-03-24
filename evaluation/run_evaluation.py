@@ -62,9 +62,23 @@ def run_evaluation(max_samples: int = None):
         print(f"[{i}/{total}] {display_query}")
         
         try:
-            response, metrics = engine.run_with_metrics(query, expected_task=expected)
+            # 1. Router Approach (Real Execution)
+            response, metrics = engine.run_with_metrics(
+                query, 
+                expected_task=expected,
+                skip_execution=False
+            )
             
-            # Update statistics
+            # 2. Baseline: GPT-4o (High Quality)
+            print("    Running Baseline: GPT-4o...")
+            _, metrics_gpt4o = engine.run_baseline(query, "gpt-4o")
+            
+            # 3. Baseline: GPT-4o-mini (Low Cost)
+            print("    Running Baseline: GPT-4o-mini...")
+            _, metrics_gpt4om = engine.run_baseline(query, "gpt-4o-mini")
+            
+            # Update statistics (Router only for now, or track all?)
+            # The existing stats logic tracks Router performance.
             is_correct = metrics.is_correct
             if is_correct:
                 correct += 1
@@ -77,11 +91,13 @@ def run_evaluation(max_samples: int = None):
             if metrics.used_fallback:
                 fallback_count += 1
             
-            # Store result
+            # Store result with baselines
             results.append({
                 "query": query,
                 "expected_task": expected,
                 "metrics": metrics.to_dict(),
+                "baseline_gpt4o": metrics_gpt4o.to_dict(),
+                "baseline_gpt4om": metrics_gpt4om.to_dict(),
                 "response_preview": response.content[:200] if response.content else "",
             })
             
@@ -91,7 +107,7 @@ def run_evaluation(max_samples: int = None):
                   f"Cost: ${metrics.total_cost:.6f}")
             
         except Exception as e:
-            print(f"    ✗ Error: {str(e)[:50]}")
+            print(f"    ✗ Error: {str(e)}")
             category_stats[expected]["total"] += 1
             results.append({
                 "query": query,

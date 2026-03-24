@@ -55,8 +55,7 @@ COLORS = {
     'gpt_reasoning': '#3498db',
     'gpt_summary': '#9b59b6',
     'fallback': '#95a5a6',            # Gray
-    'o3-mini': '#f39c12',
-    'o4-mini': '#3498db',
+    'o3-mini': '#3498db',
     'gpt-4.1-mini': '#95a5a6',
     'gpt-4o': '#2ecc71',
     'gpt-4o-mini': '#9b59b6',
@@ -137,14 +136,16 @@ def chart_cost_comparison(data):
     total_queries = summary['total_samples']
     router_cost = summary['total_cost']
     
-    # Estimate baseline costs (if all queries used single model)
-    # GPT-4o: $2.50/1M input, $10.00/1M output
-    # GPT-4o-mini: $0.15/1M input, $0.60/1M output
-    gpt4o_cost_per_query = 0.0035
-    gpt4o_mini_cost_per_query = 0.00035
-    
-    gpt4o_baseline = total_queries * gpt4o_cost_per_query
-    gpt4o_mini_baseline = total_queries * gpt4o_mini_cost_per_query
+    # Calculate real baseline costs from results
+    try:
+        gpt4o_baseline = sum(item['baseline_gpt4o']['cost']['total'] for item in results)
+        gpt4o_mini_baseline = sum(item['baseline_gpt4om']['cost']['total'] for item in results)
+    except KeyError:
+        print("  ⚠ Baselines not found in results. Using estimates.")
+        gpt4o_cost_per_query = 0.0035
+        gpt4o_mini_cost_per_query = 0.00035
+        gpt4o_baseline = total_queries * gpt4o_cost_per_query
+        gpt4o_mini_baseline = total_queries * gpt4o_mini_cost_per_query
     
     fig, ax = plt.subplots(figsize=(10, 6))
     
@@ -184,40 +185,55 @@ def chart_cost_comparison(data):
 # ============================================================
 
 def chart_latency_distribution(data):
-    """Box plot showing latency distribution for each expert."""
+    """Box plot showing latency comparison: Router vs Baselines."""
     results = data['results']
     
-    # Collect latencies by expert
-    expert_latencies = defaultdict(list)
+    router_latencies = []
+    gpt4o_latencies = []
+    gpt4om_latencies = []
+    
     for item in results:
         if 'metrics' in item and item['metrics']:
-            metrics = item['metrics']
-            expert = metrics['routing']['selected_expert']
-            total_latency = metrics['latency']['total']
-            expert_latencies[expert].append(total_latency)
+            # Router metrics are nested
+            router_latencies.append(item['metrics']['latency']['total'])
+            
+            if 'baseline_gpt4o' in item:
+                # Baseline metrics are also nested if using DetailedMetrics.to_dict()
+                gpt4o_latencies.append(item['baseline_gpt4o']['latency']['total'])
+            
+            if 'baseline_gpt4om' in item:
+                gpt4om_latencies.append(item['baseline_gpt4om']['latency']['total'])
     
-    # Prepare data for plotting
-    experts = ['gpt_code', 'gpt_reasoning', 'gpt_summary', 'fallback']
-    expert_labels = ['GPT-4o\n(Code)', 'o4-mini\n(Reasoning)', 'GPT-4o-mini\n(Summary)', 'gpt-4.1-mini\n(Fallback)']
-    latency_data = [expert_latencies.get(e, [0]) for e in experts]
-    colors = [COLORS.get(e, '#95a5a6') for e in experts]
+    # If baselines missing, don't crash (legacy support)
+    data_to_plot = [router_latencies]
+    labels = ['LLM Router']
+    colors = ['#2ecc71']
+    
+    if gpt4o_latencies:
+        data_to_plot.append(gpt4o_latencies)
+        labels.append('GPT-4o')
+        colors.append('#e74c3c')
+        
+    if gpt4om_latencies:
+        data_to_plot.append(gpt4om_latencies)
+        labels.append('GPT-4o-mini')
+        colors.append('#3498db')
     
     fig, ax = plt.subplots(figsize=(10, 6))
     
-    bp = ax.boxplot(latency_data, labels=expert_labels, patch_artist=True)
+    bp = ax.boxplot(data_to_plot, labels=labels, patch_artist=True)
     
     # Color the boxes
     for patch, color in zip(bp['boxes'], colors):
         patch.set_facecolor(color)
         patch.set_alpha(0.7)
     
-    ax.set_xlabel('Expert Model')
     ax.set_ylabel('Total Latency (seconds)')
-    ax.set_title('Response Time Distribution by Expert')
+    ax.set_title('System Latency Comparison')
     ax.grid(axis='y', alpha=0.3)
     
     # Add median annotations
-    medians = [np.median(d) if d else 0 for d in latency_data]
+    medians = [np.median(d) if d else 0 for d in data_to_plot]
     for i, median in enumerate(medians):
         ax.annotate(f'{median:.2f}s',
                     xy=(i + 1, median),
@@ -409,7 +425,7 @@ def chart_expert_usage(data):
             expert_counts[expert] += 1
     
     experts = ['gpt_code', 'gpt_reasoning', 'gpt_summary', 'fallback']
-    labels = ['GPT-4o (Code)', 'o4-mini (Reasoning)', 'GPT-4o-mini (Summary)', 'gpt-4.1-mini (Fallback)']
+    labels = ['GPT-4o (Code)', 'o3-mini (Reasoning)', 'GPT-4o-mini (Summary)', 'gpt-4.1-mini (Fallback)']
     sizes = [expert_counts.get(e, 0) for e in experts]
     colors = [COLORS.get(e, '#95a5a6') for e in experts]
     
@@ -615,8 +631,13 @@ def chart_token_usage_comparison(data):
             total_our = (tokens['router_input'] + tokens['router_output'] + 
                          tokens['expert_input'] + tokens['expert_output'])
             
-            # Normal usage: Expert only (assuming direct prompt)
-            total_normal = tokens['expert_input'] + tokens['expert_output']
+            # Normal usage: GPT-4o Baseline (Real)
+            try:
+                tokens_gpt4o = item['baseline_gpt4o']['tokens']
+                total_normal = tokens_gpt4o['expert_input'] + tokens_gpt4o['expert_output']
+            except KeyError:
+                # Fallback to estimate if baseline missing
+                total_normal = tokens['expert_input'] + tokens['expert_output']
             
             task_tokens_our[task].append(total_our)
             task_tokens_normal[task].append(total_normal)

@@ -31,10 +31,12 @@ class GPTReasoningExpert(LLMExpert):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt},
             ],
-            temperature=kwargs.get("temperature", 0.3),
-            max_tokens=kwargs.get("max_tokens", 1000),
-            frequency_penalty=kwargs.get("frequency_penalty", 0.0),
-            presence_penalty=kwargs.get("presence_penalty", 0.0),
+            # temperature is not supported by o3-mini
+            # temperature=kwargs.get("temperature", 0.3),
+            max_completion_tokens=kwargs.get("max_tokens", 1000),
+            # frequency_penalty and presence_penalty are not supported by o3-mini
+            # frequency_penalty=kwargs.get("frequency_penalty", 0.0),
+            # presence_penalty=kwargs.get("presence_penalty", 0.0),
         )
 
         message = response.choices[0].message.content

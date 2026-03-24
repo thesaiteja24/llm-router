@@ -25,7 +25,7 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("🧠 LLM Router – Transparent AI Decision System")
+st.title("🧠 Dynamic Parameter Allocation")
 st.caption("Task-aware routing with optimized parameter planning")
 
 
